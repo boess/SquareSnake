@@ -1,13 +1,10 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Date;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * Snakes on a square
@@ -33,7 +30,7 @@ public class Solver {
 
         //We start the Snake with a single direction, checking the other direction is not necessary
         SnakeResult start = new SnakeResult();
-        start.setSnake("L");
+        start.setDirectionString("L");
         //already found one with a score
         start.setSquareSide(Integer.MAX_VALUE);
 
@@ -56,8 +53,8 @@ public class Solver {
     private void process(SnakeResult snakeResult) throws ExecutionException, InterruptedException {
 
 //        System.out.println(snakeResult.getSnake());
-        final String a = snakeResult.getSnake() + "L";
-        final String b = snakeResult.getSnake() + "R";
+        final String a = snakeResult.getDirectionString() + "L";
+        final String b = snakeResult.getDirectionString() + "R";
 
 //        Future<SnakeResult> futureA = executor.submit(new Callable<SnakeResult>() {
 //            public SnakeResult call() {
@@ -96,7 +93,7 @@ public class Solver {
                     //found a new better result
                     best = result;
                     Date now = new Date();
-                    System.out.println(now.toString() + "/ " + best.getSquareSide() + "/" + best.getSnake());
+                    System.out.println(now.toString() + "/ " + best.getSquareSide() + "/" + best.getDirectionString());
                     writeResult(result);
                 }
             }
@@ -120,7 +117,7 @@ public class Solver {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("results.txt", true))) {
             bw.newLine();
             Date now = new Date();
-            bw.append(now.toString()).append(" / ").append(String.valueOf(result.getSquareSide())).append(" / ").append(result.getSnake());
+            bw.append(now.toString()).append(" / ").append(String.valueOf(result.getSquareSide())).append(" / ").append(result.getDirectionString());
         } catch (IOException e) {
             e.printStackTrace();
         }

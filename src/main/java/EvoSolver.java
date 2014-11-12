@@ -19,8 +19,8 @@ public class EvoSolver {
     ExecutorService executor = Executors.newFixedThreadPool(4);
     SquareSnakeSolver sSolver;
     List<SnakeResult> results;
-    private int growSize = 2;
-    private int populationSize = 500;
+    private int growSize = 10;
+    private int populationSize = 100;
     private Date startDate;
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
@@ -34,37 +34,44 @@ public class EvoSolver {
 
     private void solve() throws ExecutionException, InterruptedException {
 
-        results = new ArrayList<>(populationSize);
+        results = new ArrayList<>(20000);
 
         //date for performance concerns
         startDate = new Date();
 
         sSolver = new SquareSnakeSolver();
 
-        //We start the Snake with a single direction, checking the other direction is not necessary (LLRRL == RRLLR)
         SnakeResult start = new SnakeResult();
-        start.setSnake("L");
+        start.setSnake(new Snake());
         start.setValid(true);
-        start.setSize(1);
+        start.setDirectionString("");
+
+        sSolver.solve(start);
+
+        //We start the Snake with a single direction, checking the other direction is not necessary (LLRRL == RRLLR)
+        SnakeResult startLeft = SnakeResult.grow("L", start);
+        sSolver.solve(startLeft);
 
         //add this start point to the results to have a start point
-        results.add(start);
+        results.add(startLeft);
 
         //keep on growing until we reached the desired length
-        processList(start.getSize());
+        processList(startLeft.getSize());
     }
 
 
     /**
      * Takes the current snake and create a new two headed snake.
-     * For each valid snake it will do this again and again until we reach the given length
+     * For each valid snake it will do this again and again until we reach the given length of the solution string
+     *
      * @param snakeResult the Snake to grow
-     * @param length the length to continue to
+     * @param length the length of the solution string to continue to
      */
     private void process(SnakeResult snakeResult, final int length) throws ExecutionException, InterruptedException {
 
-        final String a = snakeResult.getSnake() + "L";
-        final String b = snakeResult.getSnake() + "R";
+
+        final SnakeResult a = snakeResult.grow("L", snakeResult);
+        final SnakeResult b = SnakeResult.grow("R", snakeResult);
 
         Future<SnakeResult> futureA = executor.submit(new Callable<SnakeResult>() {
             public SnakeResult call() {
@@ -87,13 +94,13 @@ public class EvoSolver {
         //when the result is valid we continue to let the snake grow
         if(result.isValid()) {
             //continue if we did not reached the desiredLength yet and the current result is not worse than the worst result in the current population
-            if(result.getSize() < desiredLength && (results.size() < populationSize || result.getSquareSide() < results.get(populationSize-1).getSquareSide())) {
+//            if(result.getSize() < desiredLength && (results.size() < populationSize || result.getSquareSide() < results.get(populationSize-1).getSquareSide())) {
+            if(result.getSize() < desiredLength) {
                 process(result, desiredLength);
             }
             else {
                 //valid result - add it and sort the list
                 results.add(result);
-                Collections.sort(results);
             }
         }
     }
@@ -107,7 +114,7 @@ public class EvoSolver {
             bw.append("Finished in: ").append(String.valueOf(secs)).append("s. With params:" ).append("growSize: ").append(String.valueOf(growSize)).append("population: ").append(String.valueOf(populationSize));
             bw.newLine();
             if (step == null) {
-                bw.append(now.toString()).append(" / ").append(String.valueOf(result.getSquareSide())).append(" / ").append(result.getSnake());
+                bw.append(now.toString()).append(" / ").append(String.valueOf(result.getSquareSide())).append(" / ").append(result.getDirectionString());
             }
             else {
                 bw.append(now.toString()).append(" / ").append("no results anymore at step ").append(String.valueOf(step));
@@ -154,7 +161,7 @@ public class EvoSolver {
             //reached the final length - get the best
             Collections.sort(results);
             writeResult(results.get(0), null);
-            System.out.println(results.get(0).getSquareSide() +  "/" + results.get(0).getSnake());
+            System.out.println(results.get(0).getSquareSide() +  "/" + results.get(0).getDirectionString());
             return;
         }
     }

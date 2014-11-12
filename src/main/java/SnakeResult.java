@@ -1,20 +1,23 @@
 public class SnakeResult implements  Comparable<SnakeResult> {
 
-    public String snake;
+    public String directionString;
     public int size;
     public int squareSide;
-    public boolean valid;
+    public boolean valid = true;
+    public int stepsTaken;
+    public Snake snake;
+//    public List<Coordinate> allLocations
 
 
-    public String getSnake() {
+    public String getDirectionString() {
 
-        return snake;
+        return directionString;
     }
 
 
-    public void setSnake(String snake) {
+    public void setDirectionString(String directionString) {
 
-        this.snake = snake;
+        this.directionString = directionString;
     }
 
 
@@ -54,9 +57,48 @@ public class SnakeResult implements  Comparable<SnakeResult> {
     }
 
 
+    public int getStepsTaken() {
+
+        return stepsTaken;
+    }
+
+
+    public void setStepsTaken(int stepsTaken) {
+
+        this.stepsTaken = stepsTaken;
+    }
+
+
+    public Snake getSnake() {
+
+        return snake;
+    }
+
+
+    public void setSnake(Snake snake) {
+
+        this.snake = snake;
+    }
+
+
     @Override
     public int compareTo(SnakeResult o) {
         return this.getSquareSide() - o.getSquareSide();
+
+    }
+
+
+    public static SnakeResult grow(String r, SnakeResult source) {
+        SnakeResult result = new SnakeResult();
+
+        result.setStepsTaken(source.getStepsTaken());
+        result.setDirectionString(source.getDirectionString() + r);
+        result.setSize(result.getDirectionString().length());
+        result.setSnake(new Snake(source.getSnake()));
+        result.setSquareSide(source.getSquareSide());
+        result.setValid(source.isValid());
+
+        return  result;
 
     }
 }

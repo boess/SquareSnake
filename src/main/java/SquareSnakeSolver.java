@@ -14,148 +14,42 @@ public class SquareSnakeSolver {
     }
 
 
-    public SnakeResult solve(String solution) {
+    public SnakeResult solve(SnakeResult snakeResult) {
 
-        SnakeResult result = new SnakeResult();
-        result.setValid(true);
-        result.setSnake(solution);
-        result.setSize(solution.length());
+        Snake snake = snakeResult.getSnake();
 
-        Snake snake = new Snake();
-		char[] input = solution.toCharArray();
-
-
-		// Apply input solution to the snake:
-		int stepsTaken = 0;
-		for (int i = 0; i < input.length; i++) {
-
-			int stepsUntilNextTurn = primeGaps.get(i);
+        if (snakeResult.getDirectionString().length() != 0) {
+            snake.turn(snakeResult.getDirectionString().charAt(snakeResult.getDirectionString().length()-1));
+        }
+		//Check the last L/R in the direction string
+        if (snakeResult.getDirectionString().length()  < 669) {
+            int stepsUntilNextTurn = primeGaps.get(snakeResult.getDirectionString().length());
             try {
                 snake.step(stepsUntilNextTurn);
             } catch (IllegalArgumentException e) {
                 //can not make the step
-                result.setValid(false);
-                break;
+                snakeResult.setValid(false);
+                return snakeResult;
             }
-            snake.turn(input[i]);
-
-			stepsTaken += stepsUntilNextTurn;
-		}
-
-//		// Take the final steps to create a snake of the desired total length:
-        if (solution.length()  == 669) {
+            snakeResult.setStepsTaken(snakeResult.getStepsTaken() + stepsUntilNextTurn);
+        } else {
+            // Take the final steps to create a snake of the desired total length:
             //do this when we have a complete solution to determine the correct square size
             //this could still go wrong
             try {
-                snake.step(5000 - stepsTaken);
+                snake.step(5000 - snakeResult.getStepsTaken());
             } catch (IllegalArgumentException e) {
                 //can not make the last step - so close...
-                result.setValid(false);
+                snakeResult.setValid(false);
+                return snakeResult;
             }
         }
 
-        // Calculate the final bounding square:
-		int xmin = 0, ymin = 0, xmax = 0, ymax = 0;
-		for(Coordinate coordinate:snake.allLocations) {
-			xmax = Math.max(xmax,  coordinate.x);
-			xmin = Math.min(xmin,  coordinate.x);
-			ymax = Math.max(ymax,  coordinate.y);
-			ymin = Math.min(ymin,  coordinate.y);
-		}
+        snakeResult.setSquareSide(Math.max(snake.getXmax() - snake.getXmin(), snake.getYmax() - snake.getYmin()));
 
-        result.setSquareSide(Math.max(xmax - xmin, ymax - ymin));
-
-        return result;
+        return snakeResult;
 	}
 
-	/**
-	 * Store the state of the snake
-	 */
-	private class Snake {
-
-		private final int LEFT = -1;
-		private final int RIGHT = 1;
-		
-		private Coordinate[] DIRECTIONS = new Coordinate[] {
-				new Coordinate(0, -1), // North 
-				new Coordinate(1, 0),  // East
-				new Coordinate(0, 1),  // South
-				new Coordinate(-1, 0)  // West
-		};
-
-		// Our current heading (pointer into DIRECTIONS array), start going north
-		private int currentHeading = 0;
-		
-		// Our current location:
-		private Coordinate currentLocation = new Coordinate(0, 0);
-		
-		// All the previously visited locations:
-		private List<Coordinate> allLocations = new ArrayList<Coordinate>();
-
-		public Snake() {
-			//Add initial position:
-			allLocations.add(currentLocation);
-		}
-
-		/**
-		 * Take N steps in the current direction
-		 */
-		private void step(int length) {
-			for (int i = 0; i < length; i++) {
-				
-				// New location:
-				currentLocation = new Coordinate(
-						currentLocation.x + DIRECTIONS[currentHeading].x,
-						currentLocation.y + DIRECTIONS[currentHeading].y);
-				
-				// Check if there is a crossing (slow method, going through a list)
-				if (allLocations.contains(currentLocation)) {
-					throw new IllegalArgumentException("Crossing detected at: "
-							+ currentLocation + " after "
-							+ allLocations.size() + " steps");
-				}
-				allLocations.add(currentLocation);
-			}
-		}
-
-		/**
-		 * Turn the snake [L]eft or [R]ight
-		 * 
-		 * @param direction L or R
-		 */
-		private void turn(char direction) {
-			if (direction == 'L') {
-				currentHeading = (4 + (currentHeading + LEFT)) % 4;
-			} else {
-				currentHeading = (currentHeading + RIGHT) % 4;
-			}
-		}
-	}
-
-	private class Coordinate {
-
-		private int x;
-		private int y;
-
-		public Coordinate(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-
-		@Override
-		public String toString() {
-			return "(" + x + "," + y + ")";
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof Coordinate)) {
-				return false;
-			}
-			Coordinate other = (Coordinate) obj;
-			return other.x == x && other.y == y;
-		}
-	}
 
 	/**
 	 * Sieve all the primes up to a certain number and return all the gaps.
