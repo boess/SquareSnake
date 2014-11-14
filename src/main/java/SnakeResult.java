@@ -88,13 +88,18 @@ public class SnakeResult implements  Comparable<SnakeResult> {
     }
 
 
-    public static SnakeResult grow(String r, SnakeResult source) {
+    public static SnakeResult grow(String r, SnakeResult source, boolean createNewSnake) {
         SnakeResult result = new SnakeResult();
 
         result.setStepsTaken(source.getStepsTaken());
         result.setDirectionString(source.getDirectionString() + r);
         result.setSize(result.getDirectionString().length());
-        result.setSnake(new Snake(source.getSnake()));
+        if (createNewSnake) {
+            result.setSnake(new Snake(source.getSnake()));
+        }
+        else {
+            result.setSnake(source.getSnake());
+        }
         result.setSquareSide(source.getSquareSide());
         result.setValid(source.isValid());
 

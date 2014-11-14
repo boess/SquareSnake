@@ -6,11 +6,11 @@ import java.util.List;
  */
 public class Snake {
 
-    private final int LEFT = -1;
-    private final int RIGHT = 1;
+    private static final int LEFT = -1;
+    private static final int RIGHT = 1;
 
 
-    private Coordinate[] DIRECTIONS = new Coordinate[]{
+    private static Coordinate[] DIRECTIONS = new Coordinate[]{
             new Coordinate(0, -1), // North
             new Coordinate(1, 0),  // East
             new Coordinate(0, 1),  // South
@@ -26,7 +26,7 @@ public class Snake {
     private Coordinate currentLocation = new Coordinate(0, 0);
 
     // All the previously visited locations:
-    private List<Coordinate> allLocations = new ArrayList<>();
+    private List<Coordinate> allLocations = new ArrayList<>(5000);
 
 
     public Snake() {
