@@ -33,7 +33,7 @@ public class EvoSolver {
     /**
      * The best score we already know, no need to go above this
      */
-    private int threshold = 176;
+    private int threshold = 250;
 
     //keep track of the time
     private Date startDate;
@@ -98,8 +98,6 @@ public class EvoSolver {
         final SnakeResult a = SnakeResult.grow("L", snakeResult, false);
         final SnakeResult b = SnakeResult.grow("R", snakeResult, true);
 
-        snakeResult = null;
-
         Future<SnakeResult> futureA = executor.submit(new Callable<SnakeResult>() {
             public SnakeResult call() {
                 return sSolver.solve(a);
@@ -122,7 +120,6 @@ public class EvoSolver {
             //when the result is valid we continue to let the snake grow
             if(result.isValid()) {
                 //continue if we did not reached the desiredLength yet and the current result is not worse than the worst result in the current population
-    //            if(result.getSize() < desiredLength && (results.size() < populationSize || result.getSquareSide() < results.get(populationSize-1).getSquareSide())) {
                 if(result.getSize() < desiredLength) {
                     process(result, desiredLength);
                 }
@@ -163,8 +160,9 @@ public class EvoSolver {
             desiredLength = 669;
         }
 
-        System.out.println(desiredLength);
+//        System.out.println(desiredLength);
         System.out.println(results.size());
+
         //keep only the best
         List<SnakeResult> bestResults;
         if (populationSize > 0) {
@@ -180,9 +178,6 @@ public class EvoSolver {
         for(SnakeResult s : bestResults) {
             process(s, desiredLength);
         }
-
-        bestResults = null;
-
 
         if(results.size() == 0) {
             System.out.println("No longer valid results at step " + desiredLength + "for threshold " + threshold );

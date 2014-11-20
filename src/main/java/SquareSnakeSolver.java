@@ -19,8 +19,10 @@ public class SquareSnakeSolver {
         Snake snake = snakeResult.getSnake();
 
         if (snakeResult.getDirectionString().length() != 0) {
+            //make the turn based on the last L/R in the string
             snake.turn(snakeResult.getDirectionString().charAt(snakeResult.getDirectionString().length()-1));
         }
+
 		//Check the last L/R in the direction string
         if (snakeResult.getDirectionString().length()  < 669) {
             int stepsUntilNextTurn = primeGaps.get(snakeResult.getDirectionString().length());
@@ -45,6 +47,7 @@ public class SquareSnakeSolver {
             }
         }
 
+        //set the max square side based on the information in the snake
         snakeResult.setSquareSide(Math.max(snake.getXmax() - snake.getXmin(), snake.getYmax() - snake.getYmin()));
 
         return snakeResult;
